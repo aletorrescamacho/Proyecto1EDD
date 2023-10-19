@@ -20,7 +20,7 @@ public class JFilechooserprueba {
         
         // Se instancia el JFilechooser
         JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-
+        int a;
         int returnValue = jfc.showOpenDialog(null);
         // Verifica que el numero guardado sea el de opción aprovada, de ser así imprime su ruta
         if (returnValue == JFileChooser.APPROVE_OPTION) {
