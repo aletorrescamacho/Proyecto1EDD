@@ -18,9 +18,9 @@ package proyecto1edd;
 public class Lista <T>{
     
     
-    private Nodo<T> inicio;
-    private Nodo<T> fin;
-    private int cantNodos;
+    Nodo<T> inicio;
+    Nodo<T> fin;
+    int cantNodos;
 
     public Lista() {
         cantNodos = 0;
