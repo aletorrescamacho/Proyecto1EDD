@@ -5,10 +5,17 @@
  */
 package proyecto1edd;
 
-/**
- *
- * @author Rebeca
- */
+
 public class Vertice {
-    
+    /**
+*Clase vertice, cada vertice va a contener el nombre de usuario
+*@author: Alessandra Torres
+*@version: 18/10/23
+ */
+    String usuario;
+
+    // Constructor
+    public Vertice(String usuario) {
+        this.usuario = usuario;
+    }
 }
