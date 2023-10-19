@@ -1,6 +1,13 @@
 package proyecto1edd;
 
+/**
+*Clase Lista prueba de matriz de adyacencia
+*@author: Luis Soriano
+*@version: 19/10/23
+ */
+
 public class PruebasMatAdy {
+    
 
     static Lista<Lista<Boolean>> matAdy;// = new Lista<>();
 
