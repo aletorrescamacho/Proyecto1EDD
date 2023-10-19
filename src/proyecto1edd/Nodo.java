@@ -15,8 +15,13 @@ public class Nodo <T> {
 *@version: 18/10/23
  */
     
-    private T info;
-    private Nodo <T> proxNodo;
+    public T info;
+    public Nodo <T> proximo;
+    
+    public Nodo (T elem){
+        info = elem;
+        proximo = null;
+    }
 
     public String getInfo() {
         return (String) info;
@@ -25,9 +30,9 @@ public class Nodo <T> {
         this.info = (T) info;
     }
     public Nodo getProxNodo(){
-        return proxNodo;
+        return proximo;
     }
     public void setProxNodo(Nodo n){
-        proxNodo = n;
+        proximo = n;
     }
 }
