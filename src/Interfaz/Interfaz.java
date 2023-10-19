@@ -5,15 +5,26 @@
  */
 package Interfaz;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import javax.swing.JFileChooser;
+import proyecto1edd.Arista;
+import proyecto1edd.Lista;
+import proyecto1edd.Vertice;
+
 /**
  *
- * @author Rebeca
+ * @author Alessandra
  */
 public class Interfaz extends javax.swing.JFrame {
+    
+     JFileChooser fcSelectorArchivo;// = new JFileChooser();
+    Lista<String> objListaString;// = new Lista<>();
+    Lista<Vertice> grupoUsuarios;// = new Lista<>();
+    Lista<Arista> grupoRelaciones;// = new Lista<>();
 
-    /**
-     * Creates new form Interfaz
-     */
+
     public Interfaz() {
         initComponents();
     }
@@ -41,6 +52,11 @@ public class Interfaz extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(173, 194, 216));
 
         btcargararch.setText("Cargar Archivo");
+        btcargararch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btcargararchActionPerformed(evt);
+            }
+        });
 
         btagregarusu.setText("Agrgar Usuario");
 
@@ -115,6 +131,73 @@ public class Interfaz extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btcargararchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btcargararchActionPerformed
+        fcSelectorArchivo = new JFileChooser();
+        objListaString = new Lista<>();
+        grupoUsuarios = new Lista<>();
+        grupoRelaciones = new Lista<>();
+        File archivoALeer;
+        File archivoAbierto;
+
+
+        String lineaTxt;
+        
+
+        String stGrupo = "";
+        Scanner scTxtIn;
+        //operacion con filechooser
+        
+        int checkInput = fcSelectorArchivo.showOpenDialog(null);
+
+        if (checkInput == JFileChooser.APPROVE_OPTION) {
+            //Comprobar que si se esta abriendo el archivo mediante la opcion approve option
+            archivoAbierto = fcSelectorArchivo.getSelectedFile();
+            //solo para pruebas
+            System.out.println("Nombre Archivo: " + archivoAbierto.getName());
+            System.out.println("Ubicación archivo: " + archivoAbierto.getAbsolutePath());
+
+            try {//Scanner puede lanzar excepciones 
+
+                scTxtIn = new Scanner(archivoAbierto);
+
+
+                //Leer linea por linea el contenido para crear los grupos
+                while (scTxtIn.hasNextLine()) {
+                    lineaTxt = scTxtIn.nextLine();
+                    
+                    //construccion de grupos
+                    
+                    if (  '@' !=  lineaTxt.charAt(0)  ) {
+                       stGrupo = lineaTxt.toUpperCase();
+                        //solo para pruebas
+                        System.out.println("Prueba: " +stGrupo);
+                    } else {
+                        switch (stGrupo) {
+                            case "USUARIOS":
+                                Vertice v = new Vertice(lineaTxt, 0, 0);
+                                grupoUsuarios.agregarFinal(v);
+                                break;
+                            case "RELACIONES":
+                                //devuelve un arreglo con los dos usuarios
+                                String[] parUsuarios = lineaTxt.split(",");
+                                //@a, @b
+                                //parUsuarios[@a][@b]
+                                break;
+
+                        }
+
+                    }
+
+                }
+                //solo para pruebas
+                grupoUsuarios.imprimirLista();
+
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }//GEN-LAST:event_btcargararchActionPerformed
 
     /**
      * @param args the command line arguments
