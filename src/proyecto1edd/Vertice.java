@@ -15,7 +15,7 @@ public class Vertice {
     String usuario;
 
     // Constructor
-    public Vertice(String usuario) {
+    public Vertice(String usuario, int par, int par1) {
         this.usuario = usuario;
     }
 }
