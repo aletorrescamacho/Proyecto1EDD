@@ -5,6 +5,11 @@
  */
 package Interfaz;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import javax.swing.JFileChooser;
+
 /**
  *
  * @author Rebeca
@@ -41,6 +46,11 @@ public class Interfaz extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(173, 194, 216));
 
         btcargararch.setText("Cargar Archivo");
+        btcargararch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btcargararchActionPerformed(evt);
+            }
+        });
 
         btagregarusu.setText("Agrgar Usuario");
 
@@ -115,6 +125,83 @@ public class Interfaz extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btcargararchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btcargararchActionPerformed
+
+        
+        
+        
+        fcSelectorArchivo = new JFileChooser();
+        objListaString = new ListaDin<>();
+        conjUsuarios = new ListaDin<>();
+        conjRelaciones = new ListaDin<>();
+        File archivoALeer;
+        File openedFile;
+        //solucion
+
+        String lineaTxt;
+        
+        Boolean selectorDeConj = false;        
+        String stConjunto = "";
+        Scanner scTxtIn;
+        //operacion con filechooser
+        
+        int checkInput = fcSelectorArchivo.showOpenDialog(null);
+
+        if (checkInput == JFileChooser.APPROVE_OPTION) {
+            openedFile = fcSelectorArchivo.getSelectedFile();
+            //solo para pruebas
+            System.out.println("File Name: " + openedFile.getName());
+            System.out.println("File Location: " + openedFile.getAbsolutePath());
+
+            try {//Scanee puede lanzar excepciones IO
+
+                scTxtIn = new Scanner(openedFile);
+                //Limpiar area de texto
+                tAreaMostrarTexto.setText("");
+                //Leer linea por linea el contenido para en textArea y para crear los conjuntos
+                while (scTxtIn.hasNextLine()) {
+                    lineaTxt = scTxtIn.nextLine();
+                    // llenar textArea con la informacion del archivo de texto
+                    tAreaMostrarTexto.append(lineaTxt + "\n");
+                    //construccion de conjuntos
+                    //
+                    if (  '@' !=  lineaTxt.charAt(0)  ) {
+                        stConjunto = lineaTxt.toUpperCase();
+                        //solo para pruebas
+                        System.out.println("Linea 154: " + stConjunto);
+                    } else {
+                        switch (stConjunto) {
+                            case "USUARIOS":
+                                Vertex v = new Vertex(lineaTxt, 0, 0);
+                                conjUsuarios.agregarFinal(v);
+                                break;
+                            case "RELACIONES":
+                                //Usando el separador "," devuelve un array con los dos usuarios incluyecto el espacio en blanco, si lo hubiese
+                                String[] parUsuarios = lineaTxt.split(",");
+                                //@a, @b
+                                //parUsuarios[@a][@b]
+                                //             0   1
+                                //ListaDin<String[]> 
+                                //creamos el objeto Edge, creando los 
+                                break;
+
+                        }
+
+                    }
+
+                }
+                //solo para pruebas
+                conjUsuarios.imprimirLista();
+
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+
+
+    }//GEN-LAST:event_btcargararchActionPerformed
 
     /**
      * @param args the command line arguments
