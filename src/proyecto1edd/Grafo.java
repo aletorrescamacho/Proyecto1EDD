@@ -3,12 +3,13 @@ package proyecto1edd;
 
 import javax.swing.JOptionPane;
 
-
+import java.awt.Font;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 public class Grafo {
 
-
-    final static int MAX_USUARIOS = 200;
+    public final static int MAX_USUARIOS = 200;
     public String[] arrUsuarios;
     public String[][] arrRelaciones2d;
 
@@ -121,6 +122,43 @@ public class Grafo {
         return matrizAdy;
     }
 
+        
+    public void imprimirUsuarios(JTextArea taNotepad) {
+        taNotepad.setText("");
+        int cont = 0;
+        for (String linea : this.arrUsuarios) {
+            taNotepad.append(linea);
+            taNotepad.append("\n");
+            if (cont >= contUsuarios) {
+                break;
+            }
+            cont++;
+        }
+    }
+
+    public void imprimirRelaciones(JTextArea taNotepad) {
+        for (int i = 0; i < contRelaciones; i++) {
+            taNotepad.append(arrRelaciones2d[i][0] + ", " + arrRelaciones2d[i][1] + "\n");
+        }
+    }
+    
+        public void imprimirMatriz(JTextArea taNotepad) {
+        taNotepad.setFont(new Font("Serif", Font.PLAIN, 16));
+        taNotepad.setText("");
+        if (contUsuarios > 0) {
+            for (int y = 0; y < contUsuarios; y++) {
+                for (int x = 0; x <= contUsuarios; x++) {
+                    taNotepad.append((matrizAdy[y][x] ? "1" : "0") + "  ");
+                }
+                taNotepad.append("\n");
+            }
+        } else {
+            System.out.println("La matriz esta vacia");
+            JOptionPane.showMessageDialog(null,
+                    "La matriz esta vacia");
+        }
+    }
+    
 
 
 

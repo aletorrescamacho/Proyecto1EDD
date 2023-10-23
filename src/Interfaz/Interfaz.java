@@ -7,11 +7,17 @@ package Interfaz;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 import javax.swing.JFileChooser;
-import proyecto1edd.Arista;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileSystemView;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.graph.implementations.SingleGraph;
 import proyecto1edd.Lista;
-import proyecto1edd.Vertice;
+import proyecto1edd.Grafo;
 
 /**
  *
@@ -19,14 +25,76 @@ import proyecto1edd.Vertice;
  */
 public class Interfaz extends javax.swing.JFrame {
     
-     JFileChooser fcSelectorArchivo;// = new JFileChooser();
-    Lista<String> objListaString;// = new Lista<>();
-    Lista<Vertice> grupoUsuarios;// = new Lista<>();
-    Lista<Arista> grupoRelaciones;// = new Lista<>();
-
+    public Grafo grafo;// = new Grafo();
+    public Graph graph;
+    public String rutaAbsolutadeArchivo;
 
     public Interfaz() {
+        grafo = new Grafo();
+        graph = new SingleGraph("embedded");
         initComponents();
+    }
+
+    public void mostrarGrafo() {
+        System.setProperty("org.graphstream.ui", "swing");
+        graph.display();
+
+    }
+
+    public void leerArchivo() {
+        Grafo.contRelaciones = 0;
+        Grafo.contUsuarios = 0;
+        grafo.arrUsuarios =  new String[Grafo.MAX_USUARIOS];
+        String stConjunto = null;
+        JFileChooser fChooser;
+        File Archabierto = null;
+        Scanner in = null;
+        try {
+            fChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+
+            int returnValue = fChooser.showOpenDialog(null);
+
+
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                Archabierto = fChooser.getSelectedFile();
+                rutaAbsolutadeArchivo = Archabierto.getAbsolutePath();
+            }
+
+            in = new Scanner(Archabierto);
+
+            while (in.hasNextLine()) {
+                String linea;
+                while (in.hasNextLine()) {
+                    linea = in.nextLine();
+                    if ('@' != linea.charAt(0)) {
+                        stConjunto = linea.toUpperCase();
+                    } else {
+                        switch (stConjunto) {
+                            case "USUARIOS":
+                                grafo.agregarUsuario(linea);
+                                graph.addNode(linea);
+                                //Grafo.contUsuarios++;
+                                break;
+                            case "RELACIONES":
+                                String[] rel1Rel2 = linea.split(",");
+                                rel1Rel2[0] = rel1Rel2[0].strip();
+                                rel1Rel2[1] = rel1Rel2[1].strip();
+                                grafo.agregarRelacion(rel1Rel2);
+                                graph.addEdge(rel1Rel2[0] + rel1Rel2[1], rel1Rel2[0], rel1Rel2[1]);
+                                //Grafo.contRelaciones++;
+
+                        }
+                    }
+                }
+            }
+            in.close();
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Un error ha ocurrido.");
+            e.printStackTrace();
+        } finally {
+            in.close();
+        }
     }
 
     /**
@@ -45,7 +113,11 @@ public class Interfaz extends javax.swing.JFrame {
         bteliminarusu = new javax.swing.JButton();
         bteliminarconex = new javax.swing.JButton();
         btmostrargraf = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
+        mostrarmatady = new javax.swing.JButton();
+        mostrarusu = new javax.swing.JButton();
+        mostrarconex = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        taNotePad = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -59,14 +131,50 @@ public class Interfaz extends javax.swing.JFrame {
         });
 
         btagregarusu.setText("Agrgar Usuario");
+        btagregarusu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btagregarusuActionPerformed(evt);
+            }
+        });
 
         btagrefarconex.setText("Agregar Conexión");
+        btagrefarconex.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btagrefarconexActionPerformed(evt);
+            }
+        });
 
         bteliminarusu.setText("Eliminar Usuario");
 
         bteliminarconex.setText("Eliminar Conexión");
 
         btmostrargraf.setText("Mostrar Grafo");
+        btmostrargraf.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btmostrargrafActionPerformed(evt);
+            }
+        });
+
+        mostrarmatady.setText("Mostrar matriz de Adyacencia");
+        mostrarmatady.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mostrarmatadyActionPerformed(evt);
+            }
+        });
+
+        mostrarusu.setText("Mostrar Usuarios");
+        mostrarusu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mostrarusuActionPerformed(evt);
+            }
+        });
+
+        mostrarconex.setText("Mostrar conexiones");
+        mostrarconex.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mostrarconexActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -80,124 +188,96 @@ public class Interfaz extends javax.swing.JFrame {
                     .addComponent(btagrefarconex, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(bteliminarusu, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(bteliminarconex, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btmostrargraf, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(54, Short.MAX_VALUE))
+                    .addComponent(btmostrargraf, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(mostrarmatady, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(mostrarusu, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(mostrarconex, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(72, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(87, 87, 87)
+                .addGap(67, 67, 67)
                 .addComponent(btcargararch)
-                .addGap(87, 87, 87)
-                .addComponent(btagregarusu)
-                .addGap(87, 87, 87)
-                .addComponent(btagrefarconex)
-                .addGap(87, 87, 87)
-                .addComponent(bteliminarusu)
-                .addGap(87, 87, 87)
-                .addComponent(bteliminarconex)
-                .addGap(76, 76, 76)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(mostrarusu)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(mostrarconex)
+                .addGap(142, 142, 142)
                 .addComponent(btmostrargraf)
-                .addContainerGap(106, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(mostrarmatady)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 186, Short.MAX_VALUE)
+                .addComponent(btagregarusu)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(bteliminarusu)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btagrefarconex)
+                .addGap(18, 18, 18)
+                .addComponent(bteliminarconex)
+                .addGap(80, 80, 80))
         );
 
-        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 912, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
+        taNotePad.setColumns(20);
+        taNotePad.setRows(5);
+        jScrollPane1.setViewportView(taNotePad);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane1)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btcargararchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btcargararchActionPerformed
-        fcSelectorArchivo = new JFileChooser();
-        objListaString = new Lista<>();
-        grupoUsuarios = new Lista<>();
-        grupoRelaciones = new Lista<>();
-        File archivoALeer;
-        File archivoAbierto;
 
-
-        String lineaTxt;
-        
-
-        String stGrupo = "";
-        Scanner scTxtIn;
-        //operacion con filechooser
-        
-        int checkInput = fcSelectorArchivo.showOpenDialog(null);
-
-        if (checkInput == JFileChooser.APPROVE_OPTION) {
-            //Comprobar que si se esta abriendo el archivo mediante la opcion approve option
-            archivoAbierto = fcSelectorArchivo.getSelectedFile();
-            //solo para pruebas
-            System.out.println("Nombre Archivo: " + archivoAbierto.getName());
-            System.out.println("Ubicación archivo: " + archivoAbierto.getAbsolutePath());
-
-            try {//Scanner puede lanzar excepciones 
-
-                scTxtIn = new Scanner(archivoAbierto);
-
-
-                //Leer linea por linea el contenido para crear los grupos
-                while (scTxtIn.hasNextLine()) {
-                    lineaTxt = scTxtIn.nextLine();
-                    
-                    //construccion de grupos
-                    
-                    if (  '@' !=  lineaTxt.charAt(0)  ) {
-                       stGrupo = lineaTxt.toUpperCase();
-                        //solo para pruebas
-                        System.out.println("Prueba: " +stGrupo);
-                    } else {
-                        switch (stGrupo) {
-                            case "USUARIOS":
-                                Vertice v = new Vertice(lineaTxt, 0, 0);
-                                grupoUsuarios.agregarFinal(v);
-                                break;
-                            case "RELACIONES":
-                                //devuelve un arreglo con los dos usuarios
-                                String[] parUsuarios = lineaTxt.split(",");
-                                //@a, @b
-                                //parUsuarios[@a][@b]
-                                break;
-
-                        }
-
-                    }
-
-                }
-                //solo para pruebas
-                grupoUsuarios.imprimirLista();
-
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
-            }
-        }
+        leerArchivo();       
     }//GEN-LAST:event_btcargararchActionPerformed
+
+    private void mostrarmatadyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarmatadyActionPerformed
+        grafo.imprimirMatriz(taNotePad);
+        // TODO add your handling code here:
+    }//GEN-LAST:event_mostrarmatadyActionPerformed
+
+    private void mostrarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarusuActionPerformed
+        taNotePad.setText("");
+        grafo.imprimirUsuarios(taNotePad);
+        // TODO add your handling code here:
+    }//GEN-LAST:event_mostrarusuActionPerformed
+
+    private void mostrarconexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarconexActionPerformed
+      taNotePad.setText("");
+        grafo.imprimirRelaciones(taNotePad);
+        // TODO add your handling code here:
+    }//GEN-LAST:event_mostrarconexActionPerformed
+
+    private void btagregarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btagregarusuActionPerformed
+        String nombreUsuario;
+        nombreUsuario = JOptionPane.showInputDialog("Ingrese nombre de usuario");
+        taNotePad.append("@"+nombreUsuario);        // TODO add your handling code here:
+    }//GEN-LAST:event_btagregarusuActionPerformed
+
+    private void btmostrargrafActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btmostrargrafActionPerformed
+       System.setProperty("org.graphstream.ui", "swing");
+       graph.display();        
+// TODO add your handling code here:
+    }//GEN-LAST:event_btmostrargrafActionPerformed
+
+    private void btagrefarconexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btagrefarconexActionPerformed
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btagrefarconexActionPerformed
 
     /**
      * @param args the command line arguments
@@ -242,6 +322,10 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JButton bteliminarusu;
     private javax.swing.JButton btmostrargraf;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton mostrarconex;
+    private javax.swing.JButton mostrarmatady;
+    private javax.swing.JButton mostrarusu;
+    private javax.swing.JTextArea taNotePad;
     // End of variables declaration//GEN-END:variables
 }
