@@ -50,28 +50,24 @@ public class Interfaz extends javax.swing.JFrame {
     *@author: Alessandra Torres
     *@version: 26/10/23
      */
-    public void leerArchivo() {
-        Grafo.contRelaciones = 0;
-        Grafo.contUsuarios = 0;
-        grafo.arrUsuarios =  new String[Grafo.MAX_USUARIOS];
+    
+     public void leerArchivo() {//Leer archivo implica reiniciar toda la memoria
         String stConjunto = null;
         JFileChooser fChooser;
-        File Archabierto = null;
+        File fileOpened = null;
         Scanner in = null;
-        // Se coloca dentro de un try-catch porque seleccionar archivos puede dar errores
         try {
             fChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 
             int returnValue = fChooser.showOpenDialog(null);
-
+            //int returnValue = jfc.showSaveDialog(null);
 
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                Archabierto = fChooser.getSelectedFile();
-                rutaAbsolutadeArchivo = Archabierto.getAbsolutePath();
+                fileOpened = fChooser.getSelectedFile();
+                System.out.println(fileOpened.getAbsolutePath());
+                rutaAbsolutadeArchivo = fileOpened.getAbsolutePath();
             }
-
-            in = new Scanner(Archabierto);
-
+            in = new Scanner(fileOpened);
             while (in.hasNextLine()) {
                 String linea;
                 while (in.hasNextLine()) {
@@ -83,30 +79,31 @@ public class Interfaz extends javax.swing.JFrame {
                             case "USUARIOS":
                                 grafo.agregarUsuario(linea);
                                 graph.addNode(linea).setAttribute("ui.label", linea);
-                                //Grafo.contUsuarios++;
                                 break;
                             case "RELACIONES":
-                                String[] rel1Rel2 = linea.split(",");
-                                rel1Rel2[0] = rel1Rel2[0].strip();
-                                rel1Rel2[1] = rel1Rel2[1].strip();
-                                grafo.agregarRelacion(rel1Rel2);
-                                graph.addEdge(rel1Rel2[0] + rel1Rel2[1], rel1Rel2[0], rel1Rel2[1]);
-                                //Grafo.contRelaciones++;
+                                String[] usOrigConcatUsDest = linea.split(",");
+                                usOrigConcatUsDest[0] = usOrigConcatUsDest[0].strip();
+                                usOrigConcatUsDest[1] = usOrigConcatUsDest[1].strip();
+                                grafo.agregarRelacionAlArray(usOrigConcatUsDest, graph);
+                                graph.addEdge(usOrigConcatUsDest[0] + usOrigConcatUsDest[1], usOrigConcatUsDest[0], usOrigConcatUsDest[1]);
 
                         }
                     }
                 }
             }
-            in.close();
-
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
             System.out.println("Un error ha ocurrido.");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("ha ocurrido un error");
+            e.printStackTrace();
         } finally {
-            in.close();
             archivoCargado = true;
+            in.close();
         }
     }
-
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -309,7 +306,7 @@ public class Interfaz extends javax.swing.JFrame {
      */
     private void mostrarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarusuActionPerformed
         taNotePad.setText("");
-        grafo.imprimirUsuarios(taNotePad);
+        grafo.imprimirUsuariosTaNotepad(taNotePad);
         // TODO add your handling code here:
     }//GEN-LAST:event_mostrarusuActionPerformed
      /**
@@ -319,7 +316,7 @@ public class Interfaz extends javax.swing.JFrame {
      */
     private void mostrarconexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarconexActionPerformed
       taNotePad.setText("");
-        grafo.imprimirRelaciones(taNotePad);
+        grafo.imprimirRelacionesTaNotepad(taNotePad);
         // TODO add your handling code here:
     }//GEN-LAST:event_mostrarconexActionPerformed
 
@@ -340,7 +337,7 @@ public class Interfaz extends javax.swing.JFrame {
               graph.addNode(nombreUsuario).setAttribute("ui.label", nombreUsuario);
               //agregar al textfield
               taNotePad.setText("");
-              grafo.imprimirUsuarios(taNotePad);
+              grafo.imprimirUsuariosTaNotepad(taNotePad);
 
               System.out.println("gui 260 btAgregUsuario: contUsuarios: " + Grafo.contUsuarios);
           } 
@@ -406,8 +403,37 @@ public class Interfaz extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btguardararchActionPerformed
 
+    
+       /**
+    *Botón eliminar usuario, elimina el usuario deseado del txt, textarea de la interfaz, grafo y grafo de la interfaz.
+    *@author: Luis Soriano y Alessandra Torres
+    *@version: 26/10/23
+     */
     private void bteliminarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bteliminarusuActionPerformed
-//
+        if (archivoCargado) {
+            //array para usar con el joptionpane
+            if (Grafo.contUsuarios > 0) {
+                String[] arrNuevoUsuarios = new String[Grafo.contUsuarios];
+
+                for (int i = 0; i < Grafo.contUsuarios; i++) {
+                    arrNuevoUsuarios[i] = grafo.arrUsuarios[i];
+                }
+
+                String usuarioAEliminar = (String) JOptionPane.showInputDialog(                                
+                                this, "Seleccione un usuario",
+                                "Usuario a eliminar",
+                                JOptionPane.INFORMATION_MESSAGE,
+                                null/*icon*/,
+                                arrNuevoUsuarios,
+                                arrNuevoUsuarios[0]);
+                if (usuarioAEliminar != null) {
+                    grafo.eliminarUsuario(usuarioAEliminar);
+                    graph.removeNode(usuarioAEliminar);
+                    taNotePad.setText("");
+                    grafo.imprimirUsuariosTaNotepad(taNotePad);
+                }
+            }
+        }
     }//GEN-LAST:event_bteliminarusuActionPerformed
 
     /**
