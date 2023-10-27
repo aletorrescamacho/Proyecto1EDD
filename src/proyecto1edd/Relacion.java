@@ -6,8 +6,9 @@
 package proyecto1edd;
 
 /**
- *
- * @author Alessandra Torres
+*Clase Relacion, contiene el nombre del usuario y el que se quiere conectar, contiene los getters y setters
+*@author: Alessandra Torres
+*@version: 26/10/23
  */
 public class Relacion {
     public String nombreUsuarioOrig;

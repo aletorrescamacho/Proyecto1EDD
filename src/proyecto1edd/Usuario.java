@@ -6,8 +6,9 @@
 package proyecto1edd;
 
 /**
- *
- * @author Alessandra Torres
+*Clase Usuario, contiene el nombre del usuario y su posición, tiene los getters y setters
+*@author: Alessandra Torres
+*@version: 26/10/23
  */
 public class Usuario {
         public String nombreUsuario;

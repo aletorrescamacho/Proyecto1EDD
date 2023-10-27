@@ -60,6 +60,7 @@
                       <Component id="mostrarmatady" min="-2" pref="219" max="-2" attributes="0"/>
                       <Component id="mostrarusu" alignment="0" min="-2" pref="219" max="-2" attributes="0"/>
                       <Component id="mostrarconex" alignment="0" min="-2" pref="219" max="-2" attributes="0"/>
+                      <Component id="btguardararch" min="-2" pref="219" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="72" max="32767" attributes="0"/>
               </Group>
@@ -78,7 +79,9 @@
                   <Component id="btmostrargraf" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="mostrarmatady" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="186" max="32767" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="btguardararch" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace pref="152" max="32767" attributes="0"/>
                   <Component id="btagregarusu" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="bteliminarusu" min="-2" max="-2" attributes="0"/>
@@ -120,6 +123,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Eliminar Usuario"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bteliminarusuActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="bteliminarconex">
           <Properties>
@@ -156,6 +162,14 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mostrarconexActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="btguardararch">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Guardar Archivo"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btguardararchActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

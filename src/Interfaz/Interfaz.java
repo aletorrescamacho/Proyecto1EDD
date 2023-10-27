@@ -20,27 +20,36 @@ import proyecto1edd.Lista;
 import proyecto1edd.Grafo;
 
 /**
- *
- * @author Alessandra
+*Interfaz gráfica, contiene el text field en donde se muestran datos y los distintos botones que nos permiten manejar el programa
+*@author: Alessandra Torres
+*@version: 26/10/23
  */
 public class Interfaz extends javax.swing.JFrame {
     
-    public Grafo grafo;// = new Grafo();
+    public Grafo grafo;
     public Graph graph;
     public String rutaAbsolutadeArchivo;
+    public boolean archivoCargado = false;
 
+    // Construcctor de la clase
     public Interfaz() {
         grafo = new Grafo();
         graph = new SingleGraph("embedded");
         initComponents();
     }
-
+    
+    // Mostrar el grafo con ayuda de GraphStream
     public void mostrarGrafo() {
         System.setProperty("org.graphstream.ui", "swing");
         graph.display();
 
     }
-
+    
+    /**
+    *Método leer archivo, se selecciona el archivo con JFilechooser y luego se lee linea por linea para separarse en dos arreglos, uno con los usuarios y otro con laas relaciones, también se va agregando con GrapStream para ser mostrado
+    *@author: Alessandra Torres
+    *@version: 26/10/23
+     */
     public void leerArchivo() {
         Grafo.contRelaciones = 0;
         Grafo.contUsuarios = 0;
@@ -49,6 +58,7 @@ public class Interfaz extends javax.swing.JFrame {
         JFileChooser fChooser;
         File Archabierto = null;
         Scanner in = null;
+        // Se coloca dentro de un try-catch porque seleccionar archivos puede dar errores
         try {
             fChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 
@@ -72,7 +82,7 @@ public class Interfaz extends javax.swing.JFrame {
                         switch (stConjunto) {
                             case "USUARIOS":
                                 grafo.agregarUsuario(linea);
-                                graph.addNode(linea);
+                                graph.addNode(linea).setAttribute("ui.label", linea);
                                 //Grafo.contUsuarios++;
                                 break;
                             case "RELACIONES":
@@ -89,11 +99,11 @@ public class Interfaz extends javax.swing.JFrame {
             }
             in.close();
 
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             System.out.println("Un error ha ocurrido.");
-            e.printStackTrace();
         } finally {
             in.close();
+            archivoCargado = true;
         }
     }
 
@@ -116,6 +126,7 @@ public class Interfaz extends javax.swing.JFrame {
         mostrarmatady = new javax.swing.JButton();
         mostrarusu = new javax.swing.JButton();
         mostrarconex = new javax.swing.JButton();
+        btguardararch = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         taNotePad = new javax.swing.JTextArea();
 
@@ -145,6 +156,11 @@ public class Interfaz extends javax.swing.JFrame {
         });
 
         bteliminarusu.setText("Eliminar Usuario");
+        bteliminarusu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bteliminarusuActionPerformed(evt);
+            }
+        });
 
         bteliminarconex.setText("Eliminar Conexión");
 
@@ -176,6 +192,13 @@ public class Interfaz extends javax.swing.JFrame {
             }
         });
 
+        btguardararch.setText("Guardar Archivo");
+        btguardararch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btguardararchActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -191,7 +214,8 @@ public class Interfaz extends javax.swing.JFrame {
                     .addComponent(btmostrargraf, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(mostrarmatady, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(mostrarusu, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(mostrarconex, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(mostrarconex, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btguardararch, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(72, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -207,7 +231,9 @@ public class Interfaz extends javax.swing.JFrame {
                 .addComponent(btmostrargraf)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(mostrarmatady)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 186, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btguardararch)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 152, Short.MAX_VALUE)
                 .addComponent(btagregarusu)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(bteliminarusu)
@@ -240,32 +266,86 @@ public class Interfaz extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+    *Botón cargar archivos, se llama al método declarado anteriormente leerarchivo()
+    *@author: Alessandra Torres
+    *@version: 26/10/23
+     */
     private void btcargararchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btcargararchActionPerformed
 
-        leerArchivo();       
+        graph.setAttribute(
+                "ui.stylesheet",
+                "node{\n"
+                + "    size: 30px, 30px;\n"
+                + "    fill-color: #10ff10;\n"
+                + "    text-mode: normal; \n"
+                + "}");
+        grafo = new Grafo();
+        taNotePad.setText("");
+        leerArchivo();
+        if (graph != null) {
+            System.setProperty("org.graphstream.ui", "swing");
+            graph.display();
+        }       
     }//GEN-LAST:event_btcargararchActionPerformed
 
+    /**
+    *Botón que muestra la matriz en el textfield, esto se hace con ayuda del método imprimir matriz definido en la clase Grafo
+    *@author: Alessandra Torres
+    *@version: 26/10/23
+     */
     private void mostrarmatadyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarmatadyActionPerformed
-        grafo.imprimirMatriz(taNotePad);
-        // TODO add your handling code here:
-    }//GEN-LAST:event_mostrarmatadyActionPerformed
+      if (archivoCargado) {
+            if (Grafo.contUsuarios > 0) {
+                grafo.imprimirMatriz(taNotePad);
+            }
+        }// TODO add your handling code here:                                              
 
+    }//GEN-LAST:event_mostrarmatadyActionPerformed
+    /**
+    *Botón que muestra los usuarios en el textfield, esto se hace con ayuda del método imprimir usuarios definido en la clase Grafo
+    *@author: Alessandra Torres
+    *@version: 26/10/23
+     */
     private void mostrarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarusuActionPerformed
         taNotePad.setText("");
         grafo.imprimirUsuarios(taNotePad);
         // TODO add your handling code here:
     }//GEN-LAST:event_mostrarusuActionPerformed
-
+     /**
+    *Botón que muestra las conexiones en el textfield, esto se hace con ayuda del método imprimir Relaciones definido en la clase Grafo
+    *@author: Alessandra Torres
+    *@version: 26/10/23
+     */
     private void mostrarconexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarconexActionPerformed
       taNotePad.setText("");
         grafo.imprimirRelaciones(taNotePad);
         // TODO add your handling code here:
     }//GEN-LAST:event_mostrarconexActionPerformed
 
+     /**
+    *Botón que agrega usuario, lo agrega en el arreglo y también en el gráfico con ayuda de GraphStream
+    *@author: Alessandra Torres
+    *@version: 26/10/23
+     */    
     private void btagregarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btagregarusuActionPerformed
-        String nombreUsuario;
-        nombreUsuario = JOptionPane.showInputDialog("Ingrese nombre de usuario");
-        taNotePad.append("@"+nombreUsuario);        // TODO add your handling code here:
+      if (archivoCargado) {
+      if (Grafo.contUsuarios >= 0) {
+          String nombreUsuario = JOptionPane.showInputDialog("Ingrese nombre de usuario sin la @");
+          if (nombreUsuario != null) {
+              nombreUsuario = "@" + nombreUsuario;
+              //agregar al arreglo
+              grafo.agregarUsuario(nombreUsuario);
+              //agregar al grafico
+              graph.addNode(nombreUsuario).setAttribute("ui.label", nombreUsuario);
+              //agregar al textfield
+              taNotePad.setText("");
+              grafo.imprimirUsuarios(taNotePad);
+
+              System.out.println("gui 260 btAgregUsuario: contUsuarios: " + Grafo.contUsuarios);
+          } 
+      }
+  }
     }//GEN-LAST:event_btagregarusuActionPerformed
 
     private void btmostrargrafActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btmostrargrafActionPerformed
@@ -278,6 +358,57 @@ public class Interfaz extends javax.swing.JFrame {
 
         // TODO add your handling code here:
     }//GEN-LAST:event_btagrefarconexActionPerformed
+    /**
+    *Botón guardar archivo, crea un archivo vacio en la ruta del original y lee los arregloos de usuarios y relaciones con los cambios y los escribe.
+    *@author: Alessandra Torres
+    *@version: 26/10/23
+     */
+    private void btguardararchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btguardararchActionPerformed
+        if (archivoCargado) {
+            if (Grafo.contUsuarios > 0) {
+                FileWriter fileWriter = null;
+                try {
+                    fileWriter = new FileWriter(rutaAbsolutadeArchivo);
+                    fileWriter.write("usuarios" + "\n");
+                    int cont = 0;
+                    for (String linea : grafo.arrUsuarios) {
+                        fileWriter.append(linea + "\n");
+                        cont++;
+                        if (cont >= Grafo.contUsuarios) {
+                            break;
+                        }
+                    }
+
+                    fileWriter.append("relaciones" + "\n");
+                    cont = 0;
+                    for (String[] arrLinea : grafo.arrRelaciones2d) {
+
+                        fileWriter.append(arrLinea[0] + ", " + arrLinea[1] + "\n");
+                        cont++;
+                        if (cont >= Grafo.contRelaciones) {
+                            break;
+                        }
+                    }
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                } finally {
+                    try {
+                        if (fileWriter != null) {
+                            fileWriter.flush();
+                            fileWriter.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }//GEN-LAST:event_btguardararchActionPerformed
+
+    private void bteliminarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bteliminarusuActionPerformed
+//
+    }//GEN-LAST:event_bteliminarusuActionPerformed
 
     /**
      * @param args the command line arguments
@@ -320,6 +451,7 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JButton btcargararch;
     private javax.swing.JButton bteliminarconex;
     private javax.swing.JButton bteliminarusu;
+    private javax.swing.JButton btguardararch;
     private javax.swing.JButton btmostrargraf;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

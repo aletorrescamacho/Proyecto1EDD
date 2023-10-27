@@ -66,7 +66,7 @@ public class Lista <T>{
     *@version: 18/10/23
      */
     
-    public Nodo<T> getInicio() {
+    public Nodo <T> getInicio() {
         return inicio;
     }
 

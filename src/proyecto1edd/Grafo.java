@@ -56,14 +56,27 @@ public class Grafo {
 
 
     public void agregarUsuario(String nombreUsuario) {
-        if (contUsuarios < MAX_USUARIOS) {            
-            arrUsuarios[contUsuarios] = nombreUsuario;
+        boolean existe = false;
+        if (contUsuarios < MAX_USUARIOS) {
+            //verificarsi el usuario ya existe
+            for (int i = 0; i < Grafo.contUsuarios; i++) {
+                if (nombreUsuario.equals(arrUsuarios)) {
+                    existe = true;
+                    JOptionPane.showMessageDialog(null,
+                            "Error: El usuario ya existe");
+                    break;
+                }
+            }
+            if (!existe) {
+                //asignacion de usuario al array
+                arrUsuarios[contUsuarios] = nombreUsuario;
+                contUsuarios++;
+            }
         } else {
             System.out.println("Error: No hay mas espacio");
             JOptionPane.showMessageDialog(null,
                     "Error: No hay mas espacio");
         }
-        contUsuarios++;
     }
 
 
@@ -125,14 +138,8 @@ public class Grafo {
         
     public void imprimirUsuarios(JTextArea taNotepad) {
         taNotepad.setText("");
-        int cont = 0;
-        for (String linea : this.arrUsuarios) {
-            taNotepad.append(linea);
-            taNotepad.append("\n");
-            if (cont >= contUsuarios) {
-                break;
-            }
-            cont++;
+        for (int i = 0; i < Grafo.contUsuarios; i++) {
+            taNotepad.append(arrUsuarios[i] + "\n");
         }
     }
 
