@@ -1,12 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package EDD;
 
 /**
-*Clase Lista nodos conectados
+*Clase Lista simplemente enlazada
 *@author: Luis Soriano
 *@version: 19/10/23
  */
@@ -22,7 +18,12 @@ public class Lista<T> {
         tamano = 0;
     }
 
-    public void agregarElem(T elem) {//ok
+    /**
+*Metodo agregar elemento a la lista simplemente enlazada
+*@author: Luis Soriano
+*@version: 19/10/23
+ */
+    public void agregarElem(T elem) {
         Nodo nodoNuevo = new Nodo(elem);
         Nodo pred =null;
         if (this.prim == null) {
@@ -39,24 +40,35 @@ public class Lista<T> {
         tamano++;
     }
 
+        /**
+*Metodo eliminar elemento a la lista simplemente enlazada
+*@author: Luis Soriano
+*@version: 19/10/23
+ */
     public void eliminarElemXnombre(T elem) {
         Nodo aux = prim;
-        Nodo pred = null;
         if(aux == null){
             System.out.println("prim es nulo");
             return;
         }
         while(aux != null){
-            if(elem.equals(aux.elem))
-            pred = aux;
+            if(aux.sig.elem.equals(elem)){
+                System.out.print("encontrado");
+                Nodo aux2 = aux.sig;
+                aux.sig = aux.sig.sig;   
+                aux2.sig = null;
+                tamano--;
+                return;
+            }
             aux = aux.sig;
         }
-        tamano--;
     }
 
-    public void eliminarElemXpos(int pos) {
-    }
-
+        /**
+*Metodo obtener elemento por posicion  lista simplemente enlazada
+*@author: Luis Soriano
+*@version: 19/10/23
+ */
     public T obtenerElemXpos(int pos) {
         int cont = 0;
         Nodo<T> aux = prim;
@@ -70,6 +82,11 @@ public class Lista<T> {
         return null;
     }
 
+        /**
+*Metodo obtener posicion por elemento en  la lista simplemente enlazada
+*@author: Luis Soriano
+*@version: 19/10/23
+ */
     public int obtenerPosXelem(T elem) {
         int cont = 0;
         Nodo<T> aux = prim;

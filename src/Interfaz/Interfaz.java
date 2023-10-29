@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Interfaz;
 
 import java.io.FileWriter;
@@ -104,6 +100,11 @@ public class Interfaz extends javax.swing.JFrame {
         });
 
         bteliminarconex.setText("Eliminar Conexión");
+        bteliminarconex.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bteliminarconexActionPerformed(evt);
+            }
+        });
 
         mostrarusu.setText("Mostrar Usuarios");
         mostrarusu.addActionListener(new java.awt.event.ActionListener() {
@@ -244,32 +245,40 @@ public class Interfaz extends javax.swing.JFrame {
     *@version: 26/10/23
      */
     private void btcargararchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btcargararchActionPerformed
-        taListaUs.setText("");
-        taListaRel.setText("");
-
+       
+        try{
         
-        Lista[] lista = Archivo.Operaciones.cargarArchivo();
-        cUsuarios = lista[0];
-        cRelaciones = lista[1];
+                            taListaUs.setText("");
+                            taListaRel.setText("");
 
-        //Agregar los usuarios a Graphstream
-        Nodo<Usuario> aux1 = cUsuarios.prim;
-        while (aux1 != null) {
-            graph.addNode(aux1.elem.usuario).setAttribute("ui.label", aux1.elem.usuario);
-            aux1 = aux1.sig;
+
+                            Lista[] lista = Archivo.Operaciones.cargarArchivo();
+                            cUsuarios = lista[0];
+                            cRelaciones = lista[1];
+
+                            //Agregar los usuarios a Graphstream
+                            Nodo<Usuario> aux1 = cUsuarios.prim;
+                            while (aux1 != null) {
+                                graph.addNode(aux1.elem.usuario).setAttribute("ui.label", aux1.elem.usuario);
+                                aux1 = aux1.sig;
+                            }
+
+                            Nodo<Relacion> aux2 = cRelaciones.prim;
+                            while (aux2 != null) {
+                                graph.addEdge((aux2.elem.usuarioOrig.usuario + aux2.elem.usuarioDest.usuario),
+                                        aux2.elem.usuarioOrig.usuario, aux2.elem.usuarioDest.usuario,
+                                        true);
+                                aux2 = aux2.sig;
+                            }
+
+                            System.setProperty("org.graphstream.ui", "swing");
+                            archivoCargado = true;
+                            graph.display();    
+                            
         }
+        catch(Exception e){
 
-        Nodo<Relacion> aux2 = cRelaciones.prim;
-        while (aux2 != null) {
-            graph.addEdge((aux2.elem.usuarioOrig.usuario + aux2.elem.usuarioDest.usuario),
-                    aux2.elem.usuarioOrig.usuario, aux2.elem.usuarioDest.usuario,
-                    true);
-            aux2 = aux2.sig;
         }
-
-        System.setProperty("org.graphstream.ui", "swing");
-        archivoCargado = true;
-        graph.display();    
       
     }//GEN-LAST:event_btcargararchActionPerformed
 
@@ -307,19 +316,27 @@ public class Interfaz extends javax.swing.JFrame {
 
      /**
     *Botón que agrega usuario, lo agrega en el arreglo y también en el gráfico con ayuda de GraphStream
-    *@author: Alessandra Torres
-    *@version: 26/10/23
+    *@author: Luis Soriano
+    *@version: 28/10/23
      */    
     private void btagregarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btagregarusuActionPerformed
 
-    String nombreUsuario = JOptionPane.showInputDialog("Ingrese nombre de usuario sin el @:");
-    while (nombreUsuario.charAt(0)== '@'){
-        nombreUsuario = JOptionPane.showInputDialog("ERROR. Ingrese nombre de usuario sin el @:");
-    }
-        nombreUsuario = "@" + nombreUsuario;
+       try{ 
+        
+                    String nombreUsuario = JOptionPane.showInputDialog("Ingrese nombre de usuario sin el @:");
+                    while (nombreUsuario.charAt(0)== '@'){
+                        nombreUsuario = JOptionPane.showInputDialog("ERROR. Ingrese nombre de usuario sin el @:");
+                    }
+                        nombreUsuario = "@" + nombreUsuario;
 
-        cUsuarios.agregarElem(new Usuario(nombreUsuario));
-        graph.addNode(nombreUsuario).setAttribute("ui.label", nombreUsuario);
+                        cUsuarios.agregarElem(new Usuario(nombreUsuario));
+                        graph.addNode(nombreUsuario).setAttribute("ui.label", nombreUsuario);
+                        
+       }
+       catch (Exception e){
+       
+       }
+    
 
     }//GEN-LAST:event_btagregarusuActionPerformed
     /**
@@ -364,17 +381,136 @@ public class Interfaz extends javax.swing.JFrame {
 
     
        /**
-    *Botón eliminar usuario, elimina el usuario deseado del txt, textarea de la interfaz, grafo y grafo de la interfaz.
-    *@author: Luis Soriano y Alessandra Torres
-    *@version: 26/10/23
+    *Botón eliminar usuario, elimina el usuario deseado del txt, textarea de la interfaz, grafo y grafo de la interfaz
+    *@author: Luis Soriano 
+    *@version: 28/10/23
      */
     private void bteliminarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bteliminarusuActionPerformed
+   
+        try{
+        
+        
+            String nombreUsuario = JOptionPane.showInputDialog("Ingrese nombre de usuario sin la @");
+            while (nombreUsuario.charAt(0)== '@'){
+                        nombreUsuario = JOptionPane.showInputDialog("ERROR. Ingrese nombre de usuario sin el @:");
+                    }
+            if (nombreUsuario != null) {
+                nombreUsuario = "@" + nombreUsuario;
 
+
+                cUsuarios.eliminarElemXnombre(new Usuario(nombreUsuario));
+                taListaUs.setText("");
+                graph.removeNode(nombreUsuario);
+
+            }
+            
+        }
+        catch(Exception e){
+        
+        }
+        //}        // TODO add your handling code here:
     }//GEN-LAST:event_bteliminarusuActionPerformed
 
+    
+ /**
+    *Boton agregar relacion 
+    *@author: Luis Soriano
+    *@version: 28/10/23
+     */
     private void btagrefarconexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btagrefarconexActionPerformed
-        // TODO add your handling code here:
+
+        try{
+        
+        
+        String usOrigRel
+        = (String) JOptionPane.showInputDialog(
+                this,
+                "Escriba el usuario origen sin @"
+
+        );
+        while (usOrigRel.charAt(0)== '@'){
+                usOrigRel = JOptionPane.showInputDialog("ERROR. Ingrese nombre de usuario sin el @:");
+            }
+        usOrigRel = "@" + usOrigRel;
+
+        if (usOrigRel != null) {
+
+            String usDestRel
+                    = (String) JOptionPane.showInputDialog(
+                            this,
+                            "Escriba el usuario destino sin la @"
+
+                    );
+        while (usDestRel.charAt(0)== '@'){
+            usDestRel = JOptionPane.showInputDialog("ERROR. Ingrese nombre de usuario sin el @:");
+            }
+            
+            usDestRel = "@" + usDestRel;
+
+
+            cRelaciones.agregarElem(new Relacion(new Usuario(usOrigRel), new Usuario(usDestRel)));
+            System.out.println(new Relacion(new Usuario(usOrigRel), new Usuario(usDestRel)));
+            graph.addEdge(usOrigRel + usDestRel, usOrigRel, usDestRel, true);
+            taListaRel.setText("");
+
+        }
+        
+        
+        
+        }
+        catch(Exception e){
+            
+        }
     }//GEN-LAST:event_btagrefarconexActionPerformed
+
+    
+    /**
+    *Boton eliminar relacion
+    *@author: Luis Soriano
+    *@version: 28/10/23
+     */
+    private void bteliminarconexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bteliminarconexActionPerformed
+       
+        try{
+        
+        
+                            String usOrigRel
+                                    = (String) JOptionPane.showInputDialog(
+                                            this,
+                                            "Escriba el usuario origen sin @"
+
+                                    );
+                                    while (usOrigRel.charAt(0)== '@'){
+                usOrigRel = JOptionPane.showInputDialog("ERROR. Ingrese nombre de usuario sin el @:");
+            }
+                            usOrigRel = "@" + usOrigRel;
+
+                            if (usOrigRel != null) {
+
+
+                                String usDestRel
+                                        = (String) JOptionPane.showInputDialog(
+                                                this,
+                                                "Escriba el usuario destino sin la @"
+
+                                        );
+                                        while (usDestRel.charAt(0)== '@'){
+                usDestRel = JOptionPane.showInputDialog("ERROR. Ingrese nombre de usuario sin el @:");
+            }
+                                usDestRel = "@" + usDestRel;
+
+                                Relacion relacion = new Relacion(new Usuario (usOrigRel),new Usuario (usDestRel));
+                                cRelaciones.eliminarElemXnombre(relacion);
+                                graph.removeEdge(usOrigRel + usDestRel);
+                                taListaRel.setText("");
+
+                            }
+                            
+        }
+        catch(Exception e){
+            
+        }
+    }//GEN-LAST:event_bteliminarconexActionPerformed
 
     /**
      * @param args the command line arguments

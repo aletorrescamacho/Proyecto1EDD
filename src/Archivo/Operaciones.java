@@ -20,7 +20,7 @@ import EDD.Lista;
 
 /**
 *Clase Operaciones
-*@author: Alessandra Torres
+*@author: Luis Soriano y Alessandra Torres
 *@version: 28/10/23
  */
 public class Operaciones {
@@ -32,7 +32,7 @@ public class Operaciones {
     public static Lista<Relacion> cRelaciones = new Lista<>();
 /**
 *Con ayuda de Jfilechooser seleccionamos el archivo y colocamos la información en su respectiva lista
-*@author: Alessandra Torres
+*@author: Luis Soriano y Alessandra Torres
 *@version: 28/10/23
  */
     public static Lista[] cargarArchivo() {
@@ -70,7 +70,7 @@ public class Operaciones {
                                     String usuarioOrig = txtRelacion[0].strip();
                                     String usuarioDest = txtRelacion[1].strip();
                                     Relacion relacion = new Relacion(new Usuario(usuarioOrig), new Usuario(usuarioDest));
-                                    cRelaciones.agregarElem(new Relacion(new Usuario(usuarioOrig), new Usuario(usuarioDest)));
+                                    cRelaciones.agregarElem(relacion);
 
                             }
                         }
@@ -103,7 +103,7 @@ public class Operaciones {
     
 /**
 *Guardar el archivo, lee las listas creadas y lo reescribe en el archivo con las modificaciones
-*@author: Alessandra Torres
+*@author: Luis Soriano y Alessandra Torres
 *@version: 28/10/23
  */
     public static void guardarArchivo() {
