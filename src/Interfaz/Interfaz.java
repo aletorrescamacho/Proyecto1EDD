@@ -5,19 +5,17 @@
  */
 package Interfaz;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileSystemView;
+import Modelo.Grafo;
+import Modelo.Relacion;
+import Modelo.Usuario;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.graph.implementations.SingleGraph;
-import proyecto1edd.Lista;
-import proyecto1edd.Grafo;
+import EDD.Lista;
+import EDD.Nodo;
+
 
 /**
 *Interfaz gráfica, contiene el text field en donde se muestran datos y los distintos botones que nos permiten manejar el programa
@@ -25,84 +23,34 @@ import proyecto1edd.Grafo;
 *@version: 26/10/23
  */
 public class Interfaz extends javax.swing.JFrame {
-    
-    public Grafo grafo;
+
+    //Variables para control del sistema
+    public static boolean archivoCargado;
+
+    public Grafo grafo;// = new Grafo();
     public Graph graph;
     public String rutaAbsolutadeArchivo;
-    public boolean archivoCargado = false;
 
-    // Construcctor de la clase
+    public Lista<Usuario> cUsuarios;
+    public Lista<Relacion> cRelaciones;
+
     public Interfaz() {
+        archivoCargado = false;
         grafo = new Grafo();
         graph = new SingleGraph("embedded");
+//        Viewer viewer = graph.display();
+//        View view = (View) viewer.getDefaultView();
+        graph.setAttribute(
+                "ui.stylesheet",
+                "node{\n"
+                + "    size: 30px, 30px;\n"
+                + "    fill-color: #05ffff;\n"
+                + "    text-mode: normal; \n"
+                + "}");
         initComponents();
     }
     
-    // Mostrar el grafo con ayuda de GraphStream
-    public void mostrarGrafo() {
-        System.setProperty("org.graphstream.ui", "swing");
-        graph.display();
 
-    }
-    
-    /**
-    *Método leer archivo, se selecciona el archivo con JFilechooser y luego se lee linea por linea para separarse en dos arreglos, uno con los usuarios y otro con laas relaciones, también se va agregando con GrapStream para ser mostrado
-    *@author: Alessandra Torres
-    *@version: 26/10/23
-     */
-    
-     public void leerArchivo() {//Leer archivo implica reiniciar toda la memoria
-        String stConjunto = null;
-        JFileChooser fChooser;
-        File fileOpened = null;
-        Scanner in = null;
-        try {
-            fChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-
-            int returnValue = fChooser.showOpenDialog(null);
-            //int returnValue = jfc.showSaveDialog(null);
-
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                fileOpened = fChooser.getSelectedFile();
-                System.out.println(fileOpened.getAbsolutePath());
-                rutaAbsolutadeArchivo = fileOpened.getAbsolutePath();
-            }
-            in = new Scanner(fileOpened);
-            while (in.hasNextLine()) {
-                String linea;
-                while (in.hasNextLine()) {
-                    linea = in.nextLine();
-                    if ('@' != linea.charAt(0)) {
-                        stConjunto = linea.toUpperCase();
-                    } else {
-                        switch (stConjunto) {
-                            case "USUARIOS":
-                                grafo.agregarUsuario(linea);
-                                graph.addNode(linea).setAttribute("ui.label", linea);
-                                break;
-                            case "RELACIONES":
-                                String[] usOrigConcatUsDest = linea.split(",");
-                                usOrigConcatUsDest[0] = usOrigConcatUsDest[0].strip();
-                                usOrigConcatUsDest[1] = usOrigConcatUsDest[1].strip();
-                                grafo.agregarRelacionAlArray(usOrigConcatUsDest, graph);
-                                graph.addEdge(usOrigConcatUsDest[0] + usOrigConcatUsDest[1], usOrigConcatUsDest[0], usOrigConcatUsDest[1]);
-
-                        }
-                    }
-                }
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("Un error ha ocurrido.");
-            e.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("ha ocurrido un error");
-            e.printStackTrace();
-        } finally {
-            archivoCargado = true;
-            in.close();
-        }
-    }
-    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -116,16 +64,19 @@ public class Interfaz extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         btcargararch = new javax.swing.JButton();
         btagregarusu = new javax.swing.JButton();
-        btagrefarconex = new javax.swing.JButton();
         bteliminarusu = new javax.swing.JButton();
         bteliminarconex = new javax.swing.JButton();
-        btmostrargraf = new javax.swing.JButton();
-        mostrarmatady = new javax.swing.JButton();
         mostrarusu = new javax.swing.JButton();
         mostrarconex = new javax.swing.JButton();
         btguardararch = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        taNotePad = new javax.swing.JTextArea();
+        btagrefarconex = new javax.swing.JButton();
+        tpInfo = new javax.swing.JTabbedPane();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        taListaUs = new javax.swing.JTextArea();
+        jPanel3 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        taListaRel = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -138,17 +89,10 @@ public class Interfaz extends javax.swing.JFrame {
             }
         });
 
-        btagregarusu.setText("Agrgar Usuario");
+        btagregarusu.setText("Agregar Usuario");
         btagregarusu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btagregarusuActionPerformed(evt);
-            }
-        });
-
-        btagrefarconex.setText("Agregar Conexión");
-        btagrefarconex.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btagrefarconexActionPerformed(evt);
             }
         });
 
@@ -160,20 +104,6 @@ public class Interfaz extends javax.swing.JFrame {
         });
 
         bteliminarconex.setText("Eliminar Conexión");
-
-        btmostrargraf.setText("Mostrar Grafo");
-        btmostrargraf.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btmostrargrafActionPerformed(evt);
-            }
-        });
-
-        mostrarmatady.setText("Mostrar matriz de Adyacencia");
-        mostrarmatady.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mostrarmatadyActionPerformed(evt);
-            }
-        });
 
         mostrarusu.setText("Mostrar Usuarios");
         mostrarusu.addActionListener(new java.awt.event.ActionListener() {
@@ -196,6 +126,13 @@ public class Interfaz extends javax.swing.JFrame {
             }
         });
 
+        btagrefarconex.setText("Agregar Conexión");
+        btagrefarconex.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btagrefarconexActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -205,14 +142,12 @@ public class Interfaz extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btcargararch, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btagregarusu, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btagrefarconex, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(bteliminarusu, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(bteliminarconex, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btmostrargraf, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(mostrarmatady, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(mostrarusu, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(mostrarconex, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btguardararch, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btguardararch, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btagrefarconex, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(72, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -220,30 +155,66 @@ public class Interfaz extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(67, 67, 67)
                 .addComponent(btcargararch)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(mostrarusu)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(mostrarconex)
-                .addGap(142, 142, 142)
-                .addComponent(btmostrargraf)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(mostrarmatady)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(btguardararch)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 152, Short.MAX_VALUE)
+                .addGap(143, 143, 143)
+                .addComponent(mostrarusu)
+                .addGap(18, 18, 18)
+                .addComponent(mostrarconex)
+                .addGap(156, 156, 156)
                 .addComponent(btagregarusu)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(20, 20, 20)
                 .addComponent(bteliminarusu)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(btagrefarconex)
                 .addGap(18, 18, 18)
                 .addComponent(bteliminarconex)
-                .addGap(80, 80, 80))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        taNotePad.setColumns(20);
-        taNotePad.setRows(5);
-        jScrollPane1.setViewportView(taNotePad);
+        taListaUs.setColumns(20);
+        taListaUs.setRows(5);
+        jScrollPane2.setViewportView(taListaUs);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 683, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        tpInfo.addTab("Lista de Usuarios", jPanel2);
+
+        taListaRel.setColumns(20);
+        taListaRel.setRows(5);
+        jScrollPane3.setViewportView(taListaRel);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 694, Short.MAX_VALUE))
+        );
+
+        tpInfo.addTab("Lista de Relaciones", jPanel3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -251,73 +222,87 @@ public class Interfaz extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(tpInfo)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane1)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(tpInfo)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     /**
-    *Botón cargar archivos, se llama al método declarado anteriormente leerarchivo()
+    *Botón cargar archivos, se llama al método declarado anteriormente en operaciones cargarArchivo()
     *@author: Alessandra Torres
     *@version: 26/10/23
      */
     private void btcargararchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btcargararchActionPerformed
+        taListaUs.setText("");
+        taListaRel.setText("");
 
-        graph.setAttribute(
-                "ui.stylesheet",
-                "node{\n"
-                + "    size: 30px, 30px;\n"
-                + "    fill-color: #10ff10;\n"
-                + "    text-mode: normal; \n"
-                + "}");
-        grafo = new Grafo();
-        taNotePad.setText("");
-        leerArchivo();
-        if (graph != null) {
-            System.setProperty("org.graphstream.ui", "swing");
-            graph.display();
-        }       
+        
+        Lista[] lista = Archivo.Operaciones.cargarArchivo();
+        cUsuarios = lista[0];
+        cRelaciones = lista[1];
+
+        //Agregar los usuarios a Graphstream
+        Nodo<Usuario> aux1 = cUsuarios.prim;
+        while (aux1 != null) {
+            graph.addNode(aux1.elem.usuario).setAttribute("ui.label", aux1.elem.usuario);
+            aux1 = aux1.sig;
+        }
+
+        Nodo<Relacion> aux2 = cRelaciones.prim;
+        while (aux2 != null) {
+            graph.addEdge((aux2.elem.usuarioOrig.usuario + aux2.elem.usuarioDest.usuario),
+                    aux2.elem.usuarioOrig.usuario, aux2.elem.usuarioDest.usuario,
+                    true);
+            aux2 = aux2.sig;
+        }
+
+        System.setProperty("org.graphstream.ui", "swing");
+        archivoCargado = true;
+        graph.display();    
+      
     }//GEN-LAST:event_btcargararchActionPerformed
 
-    /**
-    *Botón que muestra la matriz en el textfield, esto se hace con ayuda del método imprimir matriz definido en la clase Grafo
-    *@author: Alessandra Torres
-    *@version: 26/10/23
-     */
-    private void mostrarmatadyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarmatadyActionPerformed
-      if (archivoCargado) {
-            if (Grafo.contUsuarios > 0) {
-                grafo.imprimirMatriz(taNotePad);
-            }
-        }// TODO add your handling code here:                                              
-
-    }//GEN-LAST:event_mostrarmatadyActionPerformed
-    /**
-    *Botón que muestra los usuarios en el textfield, esto se hace con ayuda del método imprimir usuarios definido en la clase Grafo
+   /**
+    *Botón que muestra los usuarios en el text area
     *@author: Alessandra Torres
     *@version: 26/10/23
      */
     private void mostrarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarusuActionPerformed
-        taNotePad.setText("");
-        grafo.imprimirUsuariosTaNotepad(taNotePad);
-        // TODO add your handling code here:
+
+        taListaUs.setText("");
+        tpInfo.setSelectedIndex(0);
+        Nodo<Usuario> aux = cUsuarios.prim;
+        while (aux != null) {
+            taListaUs.append(aux.elem.usuario + "\n");
+            aux = aux.sig;
+        }
+
+                                             
     }//GEN-LAST:event_mostrarusuActionPerformed
      /**
-    *Botón que muestra las conexiones en el textfield, esto se hace con ayuda del método imprimir Relaciones definido en la clase Grafo
+    *Botón que muestra las conexiones en el area
     *@author: Alessandra Torres
     *@version: 26/10/23
      */
     private void mostrarconexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarconexActionPerformed
-      taNotePad.setText("");
-        grafo.imprimirRelacionesTaNotepad(taNotePad);
-        // TODO add your handling code here:
+        taListaRel.setText("");
+        tpInfo.setSelectedIndex(1);
+        Nodo<Relacion> aux = cRelaciones.prim;
+        while (aux != null) {
+            taListaRel.append(aux.elem.usuarioOrig.usuario + " " + aux.elem.usuarioDest.usuario + "\n");
+            aux = aux.sig;
+        }
     }//GEN-LAST:event_mostrarconexActionPerformed
 
      /**
@@ -326,81 +311,55 @@ public class Interfaz extends javax.swing.JFrame {
     *@version: 26/10/23
      */    
     private void btagregarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btagregarusuActionPerformed
-      if (archivoCargado) {
-      if (Grafo.contUsuarios >= 0) {
-          String nombreUsuario = JOptionPane.showInputDialog("Ingrese nombre de usuario sin la @");
-          if (nombreUsuario != null) {
-              nombreUsuario = "@" + nombreUsuario;
-              //agregar al arreglo
-              grafo.agregarUsuario(nombreUsuario);
-              //agregar al grafico
-              graph.addNode(nombreUsuario).setAttribute("ui.label", nombreUsuario);
-              //agregar al textfield
-              taNotePad.setText("");
-              grafo.imprimirUsuariosTaNotepad(taNotePad);
 
-              System.out.println("gui 260 btAgregUsuario: contUsuarios: " + Grafo.contUsuarios);
-          } 
-      }
-  }
+    String nombreUsuario = JOptionPane.showInputDialog("Ingrese nombre de usuario sin el @:");
+    while (nombreUsuario.charAt(0)== '@'){
+        nombreUsuario = JOptionPane.showInputDialog("ERROR. Ingrese nombre de usuario sin el @:");
+    }
+        nombreUsuario = "@" + nombreUsuario;
+
+        cUsuarios.agregarElem(new Usuario(nombreUsuario));
+        graph.addNode(nombreUsuario).setAttribute("ui.label", nombreUsuario);
+
     }//GEN-LAST:event_btagregarusuActionPerformed
-
-    private void btmostrargrafActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btmostrargrafActionPerformed
-       System.setProperty("org.graphstream.ui", "swing");
-       graph.display();        
-// TODO add your handling code here:
-    }//GEN-LAST:event_btmostrargrafActionPerformed
-
-    private void btagrefarconexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btagrefarconexActionPerformed
-
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btagrefarconexActionPerformed
     /**
     *Botón guardar archivo, crea un archivo vacio en la ruta del original y lee los arregloos de usuarios y relaciones con los cambios y los escribe.
     *@author: Alessandra Torres
     *@version: 26/10/23
      */
     private void btguardararchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btguardararchActionPerformed
-        if (archivoCargado) {
-            if (Grafo.contUsuarios > 0) {
-                FileWriter fileWriter = null;
+
+            FileWriter fileWriter = null;
+            try {
+                fileWriter = new FileWriter(rutaAbsolutadeArchivo);
+
+                fileWriter.write("usuarios" + "\n");
+                int cont = 0;
+                Nodo<Usuario> aux = cUsuarios.prim;
+                while(aux != null){
+                    fileWriter.append(aux.elem.usuario + "\n");
+                    aux = aux.sig;
+                }
+                Nodo<Relacion> aux2 = cRelaciones.prim;
+                fileWriter.append("relaciones" + "\n");
+                while(aux2 != null){
+                    fileWriter.append(aux2.elem.usuarioOrig.usuario + ", "+aux2.elem.usuarioDest.usuario );
+                    aux2 = aux2.sig;
+                }
+ 
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } finally {
                 try {
-                    fileWriter = new FileWriter(rutaAbsolutadeArchivo);
-                    fileWriter.write("usuarios" + "\n");
-                    int cont = 0;
-                    for (String linea : grafo.arrUsuarios) {
-                        fileWriter.append(linea + "\n");
-                        cont++;
-                        if (cont >= Grafo.contUsuarios) {
-                            break;
-                        }
+                    if (fileWriter != null) {
+                        fileWriter.flush();
+                        fileWriter.close();
                     }
-
-                    fileWriter.append("relaciones" + "\n");
-                    cont = 0;
-                    for (String[] arrLinea : grafo.arrRelaciones2d) {
-
-                        fileWriter.append(arrLinea[0] + ", " + arrLinea[1] + "\n");
-                        cont++;
-                        if (cont >= Grafo.contRelaciones) {
-                            break;
-                        }
-                    }
-
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                } finally {
-                    try {
-                        if (fileWriter != null) {
-                            fileWriter.flush();
-                            fileWriter.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        }
     }//GEN-LAST:event_btguardararchActionPerformed
 
     
@@ -410,31 +369,12 @@ public class Interfaz extends javax.swing.JFrame {
     *@version: 26/10/23
      */
     private void bteliminarusuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bteliminarusuActionPerformed
-        if (archivoCargado) {
-            //array para usar con el joptionpane
-            if (Grafo.contUsuarios > 0) {
-                String[] arrNuevoUsuarios = new String[Grafo.contUsuarios];
 
-                for (int i = 0; i < Grafo.contUsuarios; i++) {
-                    arrNuevoUsuarios[i] = grafo.arrUsuarios[i];
-                }
-
-                String usuarioAEliminar = (String) JOptionPane.showInputDialog(                                
-                                this, "Seleccione un usuario",
-                                "Usuario a eliminar",
-                                JOptionPane.INFORMATION_MESSAGE,
-                                null/*icon*/,
-                                arrNuevoUsuarios,
-                                arrNuevoUsuarios[0]);
-                if (usuarioAEliminar != null) {
-                    grafo.eliminarUsuario(usuarioAEliminar);
-                    graph.removeNode(usuarioAEliminar);
-                    taNotePad.setText("");
-                    grafo.imprimirUsuariosTaNotepad(taNotePad);
-                }
-            }
-        }
     }//GEN-LAST:event_bteliminarusuActionPerformed
+
+    private void btagrefarconexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btagrefarconexActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btagrefarconexActionPerformed
 
     /**
      * @param args the command line arguments
@@ -478,12 +418,15 @@ public class Interfaz extends javax.swing.JFrame {
     private javax.swing.JButton bteliminarconex;
     private javax.swing.JButton bteliminarusu;
     private javax.swing.JButton btguardararch;
-    private javax.swing.JButton btmostrargraf;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JButton mostrarconex;
-    private javax.swing.JButton mostrarmatady;
     private javax.swing.JButton mostrarusu;
-    private javax.swing.JTextArea taNotePad;
+    private javax.swing.JTextArea taListaRel;
+    private javax.swing.JTextArea taListaUs;
+    private javax.swing.JTabbedPane tpInfo;
     // End of variables declaration//GEN-END:variables
 }
