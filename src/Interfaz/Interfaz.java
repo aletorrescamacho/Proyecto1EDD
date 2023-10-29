@@ -449,7 +449,6 @@ public class Interfaz extends javax.swing.JFrame {
 
 
             cRelaciones.agregarElem(new Relacion(new Usuario(usOrigRel), new Usuario(usDestRel)));
-            System.out.println(new Relacion(new Usuario(usOrigRel), new Usuario(usDestRel)));
             graph.addEdge(usOrigRel + usDestRel, usOrigRel, usDestRel, true);
             taListaRel.setText("");
 
@@ -484,6 +483,7 @@ public class Interfaz extends javax.swing.JFrame {
                 usOrigRel = JOptionPane.showInputDialog("ERROR. Ingrese nombre de usuario sin el @:");
             }
                             usOrigRel = "@" + usOrigRel;
+                            
 
                             if (usOrigRel != null) {
 
@@ -499,8 +499,8 @@ public class Interfaz extends javax.swing.JFrame {
             }
                                 usDestRel = "@" + usDestRel;
 
-                                Relacion relacion = new Relacion(new Usuario (usOrigRel),new Usuario (usDestRel));
-                                cRelaciones.eliminarElemXnombre(relacion);
+//                                Relacion relacion = new Relacion(new Usuario (usOrigRel),new Usuario (usDestRel));
+//                                cRelaciones.eliminarElemXnombre(relacion);
                                 graph.removeEdge(usOrigRel + usDestRel);
                                 taListaRel.setText("");
 
